@@ -157,3 +157,8 @@ Architecture: single‑binary CLI using `crossterm` for TUI, `dirs` for home pat
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for workflow and PR expectations, and
+[AGENTS.md](AGENTS.md) for structure, commands, style, and testing guidelines.
