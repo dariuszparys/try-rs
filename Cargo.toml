@@ -1,0 +1,14 @@
+[package]
+name = "try"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+crossterm = "0.27"
+dirs = "5.0"
+unicode-width = "0.1"
+clap = { version = "4.5", features = ["derive"] }
+thiserror = "1"
+
+[dev-dependencies]
+tempfile = "3"
