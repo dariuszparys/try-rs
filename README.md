@@ -42,14 +42,23 @@ exist — all wired to actually `cd` your shell.
 curl -sSf https://raw.githubusercontent.com/dariuszparys/try-rs/main/install.sh | sh
 ```
 
-This will:
-- Download the latest pre-built binary for your platform
-- Install it to `~/.local/bin`
-- Automatically configure shell integration for bash/zsh/fish
+This script will:
+- Detect your OS (Linux/macOS) and architecture (x86_64/aarch64/armv7)
+- Download the latest pre-built binary from GitHub releases
+- Extract and install it to `~/.local/bin`
+- Check if `~/.local/bin` is in your PATH (warns if not)
+- Automatically add shell integration to your rc file (bash/zsh/fish)
+
+After installation, restart your shell or source your rc file to start using `try`.
 
 To skip automatic shell integration:
 ```sh
 curl -sSf https://raw.githubusercontent.com/dariuszparys/try-rs/main/install.sh | sh -s -- --no-shell-integration
+```
+
+For help:
+```sh
+curl -sSf https://raw.githubusercontent.com/dariuszparys/try-rs/main/install.sh | sh -s -- --help
 ```
 
 ### From Pre-built Binaries
