@@ -8,13 +8,12 @@ Inspired by and adapted from Tobias Lütke’s original Ruby tool:
 
 ## Quick Start
 
-- Install Rust: `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
-- Install the CLI locally: `cargo install --path .`
-- Enable shell integration (bash/zsh):
-  `echo 'eval "$(try init)"' >> ~/.zshrc && source ~/.zshrc`
-  - Use `~/.bashrc` on bash; for fish: `try init | source` in
-    `~/.config/fish/config.fish`.
-- Launch: run `try`, type to search, press Enter to jump.
+**One-line install (Linux/macOS):**
+```sh
+curl -sSf https://raw.githubusercontent.com/dariuszparys/try-rs/main/install.sh | sh
+```
+
+Then restart your shell and run `try` to get started!
 
 ## Why `try`?
 
@@ -37,30 +36,67 @@ exist — all wired to actually `cd` your shell.
 
 ## Installation
 
+### Recommended: Quick Install Script (Linux/macOS)
+
+```sh
+curl -sSf https://raw.githubusercontent.com/dariuszparys/try-rs/main/install.sh | sh
+```
+
+This will:
+- Download the latest pre-built binary for your platform
+- Install it to `~/.local/bin`
+- Automatically configure shell integration for bash/zsh/fish
+
+To skip automatic shell integration:
+```sh
+curl -sSf https://raw.githubusercontent.com/dariuszparys/try-rs/main/install.sh | sh -s -- --no-shell-integration
+```
+
+### From Pre-built Binaries
+
+Download the latest release for your platform from the [releases page](https://github.com/dariuszparys/try-rs/releases), extract it, and place the binary in your PATH.
+
+### From crates.io
+
+If you have Rust installed:
+```sh
+cargo install try
+```
+
+### From Source
+
 Prerequisites: a working Rust toolchain from <https://rustup.rs>
 
-- Install from this repo: `cargo install --path .`
-- Or build a release binary: `cargo build --release` → `target/release/try`
+```sh
+git clone https://github.com/dariuszparys/try-rs.git
+cd try-rs
+cargo install --path .
+```
 
-## Easy Setup
+Or build a release binary: `cargo build --release` → `target/release/try`
 
-Wire `try` into your shell so it can change directories.
+## Shell Integration
 
-- bash/zsh (recommended):
+If you used the install script, shell integration is already configured! Just restart your shell.
 
-  ```sh
-  # add to ~/.bashrc or ~/.zshrc
-  eval "$(try init)"
-  # then reload your shell
-  source ~/.bashrc  # or: source ~/.zshrc
-  ```
+If you installed via another method, add the following to your shell configuration:
 
-- fish:
+**bash/zsh:**
+```sh
+# add to ~/.bashrc or ~/.zshrc
+eval "$(try init)"
+```
 
-  ```fish
-  # add to ~/.config/fish/config.fish
-  eval "$(try init | string collect)"
-  ```
+**fish:**
+```fish
+# add to ~/.config/fish/config.fish
+eval "$(try init | string collect)"
+```
+
+Then reload your shell:
+```sh
+source ~/.bashrc  # or: source ~/.zshrc
+```
 
 Customize the storage location (default: `~/src/tries`) either by passing an
 absolute path to `init` or by setting `TRY_PATH`. You can also override

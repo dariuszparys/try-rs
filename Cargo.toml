@@ -2,6 +2,18 @@
 name = "try"
 version = "0.1.0"
 edition = "2024"
+authors = ["Dariusz Parys"]
+description = "Lightweight, time-sensitive directory navigation for experiments — a fast way to jump between temporary project folders"
+readme = "README.md"
+homepage = "https://github.com/dariuszparys/try-rs"
+repository = "https://github.com/dariuszparys/try-rs"
+license = "MIT"
+keywords = ["cli", "navigation", "directory", "productivity", "fuzzy-finder"]
+categories = ["command-line-utilities", "development-tools"]
+
+[[bin]]
+name = "try"
+path = "src/main.rs"
 
 [dependencies]
 crossterm = "0.27"
