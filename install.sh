@@ -256,13 +256,20 @@ main() {
     tar -xzf "$TMP_DIR/$ARCHIVE_NAME" -C "$TMP_DIR" || error "Failed to extract archive"
 
     # Create install directory
-    mkdir -p "$INSTALL_DIR"
+    mkdir -p "$INSTALL_DIR" || error "Failed to create install directory $INSTALL_DIR"
+
+    # The archive contains a directory, so we need to find the binary inside it
+    EXTRACTED_DIR="$TMP_DIR/${ARCHIVE_NAME%.tar.gz}"
 
     # Install binary
     info "Installing to $INSTALL_DIR/$BINARY_NAME..."
-    mv "$TMP_DIR/$BINARY_NAME" "$INSTALL_DIR/$BINARY_NAME"
-    chmod +x "$INSTALL_DIR/$BINARY_NAME"
-    success "Binary installed"
+    if [ -f "$EXTRACTED_DIR/$BINARY_NAME" ]; then
+        mv "$EXTRACTED_DIR/$BINARY_NAME" "$INSTALL_DIR/$BINARY_NAME" || error "Failed to move binary to $INSTALL_DIR"
+        chmod +x "$INSTALL_DIR/$BINARY_NAME"
+        success "Binary installed"
+    else
+        error "Binary not found in extracted archive. Expected: $EXTRACTED_DIR/$BINARY_NAME"
+    fi
 
     # Check if install dir is in PATH
     case ":$PATH:" in
