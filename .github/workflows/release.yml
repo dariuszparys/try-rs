@@ -184,6 +184,8 @@ jobs:
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Verify package can be published
+        run: cargo publish --dry-run --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
       - name: Publish to crates.io
         run: cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        continue-on-error: true

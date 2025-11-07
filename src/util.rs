@@ -30,7 +30,7 @@ pub(crate) fn today_prefix() -> String {
         .unwrap_or(0);
     let days = (secs / SECONDS_PER_DAY) as i64;
     let (y, m, d) = civil_from_days(days);
-    format!("{:04}-{:02}-{:02}", y, m, d)
+    format!("{y:04}-{m:02}-{d:02}")
 }
 
 /// Howard Hinnant civil-from-days (UTC)
@@ -84,7 +84,7 @@ pub(crate) fn split_date_prefixed(s: &str) -> Option<(&str, &str)> {
 pub(crate) fn shell_escape(p: PathBuf) -> String {
     let s = p.to_string_lossy();
     let esc = s.replace('\'', r#"'\''"#);
-    format!("'{}'", esc)
+    format!("'{esc}'")
 }
 
 /// Filters a free-form query to a safe subset of characters for display and matching.
@@ -226,8 +226,8 @@ pub(crate) fn join_shell(parts: &[String]) -> String {
 pub(crate) fn dir_assign_for_shell(dir: &Path) -> String {
     let escaped = shell_escape(dir.to_path_buf());
     if is_fish_shell() {
-        format!("set -l dir {}", escaped)
+        format!("set -l dir {escaped}")
     } else {
-        format!("dir={}", escaped)
+        format!("dir={escaped}")
     }
 }

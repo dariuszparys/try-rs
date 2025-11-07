@@ -63,7 +63,7 @@ fn main() -> Result<()> {
             match e.kind() {
                 ErrorKind::DisplayHelp | ErrorKind::DisplayVersion => {
                     // Force printing to stderr so shell wrapper doesn't eval help text.
-                    eprintln!("{}", e);
+                    eprintln!("{e}");
                     std::process::exit(0);
                 }
                 _ => {
@@ -146,15 +146,14 @@ end"#,
             let dir_name = util::generate_clone_directory_name(&git_uri, name.as_deref());
             if dir_name.is_none() {
                 let mut err = io::stderr();
-                let _ =
-                    crate::tui::error(&mut err, &format!("Unable to parse git URI: {}", git_uri));
+                let _ = crate::tui::error(&mut err, &format!("Unable to parse git URI: {git_uri}"));
                 std::process::exit(1);
             }
             let full = base_path.join(dir_name.unwrap());
             let mut parts: Vec<String> = Vec::new();
             parts.push(util::dir_assign_for_shell(&full));
             parts.push("mkdir -p \"$dir\"".into());
-            parts.push(format!("git clone '{}' \"$dir\"", git_uri));
+            parts.push(format!("git clone '{git_uri}' \"$dir\""));
             parts.push("touch \"$dir\"".into());
             parts.push("cd \"$dir\"".into());
             println!("{}", util::join_shell(&parts));

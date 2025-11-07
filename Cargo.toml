@@ -1,5 +1,5 @@
 [package]
-name = "try"
+name = "try-cli"
 version = "0.1.0"
 edition = "2024"
 authors = ["Dariusz Parys"]
@@ -10,6 +10,7 @@ repository = "https://github.com/dariuszparys/try-rs"
 license = "MIT"
 keywords = ["cli", "navigation", "directory", "productivity", "fuzzy-finder"]
 categories = ["command-line-utilities", "development-tools"]
+exclude = [".github", ".gitignore", "install.sh"]
 
 [[bin]]
 name = "try"

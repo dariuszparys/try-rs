@@ -69,7 +69,7 @@ Download the latest release for your platform from the [releases page](https://g
 
 If you have Rust installed:
 ```sh
-cargo install try
+cargo install try-cli
 ```
 
 ### From Source

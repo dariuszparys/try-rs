@@ -23,3 +23,7 @@ Security & scope:
 
 For anything unclear or larger refactors, open an issue first to align on approach.
 
+## Releasing
+
+See [RELEASE_PROCESS.md](RELEASE_PROCESS.md) for instructions on creating releases and publishing to crates.io.
+

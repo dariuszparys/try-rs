@@ -25,7 +25,7 @@ pub(crate) fn run_cd_flow(query_str: String, base_path: &Path) -> Result<()> {
             return Ok(());
         } else {
             let mut err = io::stderr();
-            let _ = tui::warn(&mut err, &format!("Unable to parse git URI: {}", trimmed));
+            let _ = tui::warn(&mut err, &format!("Unable to parse git URI: {trimmed}"));
             return Ok(());
         }
     }
