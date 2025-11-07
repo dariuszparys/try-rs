@@ -3,8 +3,10 @@
 Lightweight, time‑sensitive directory navigation for experiments — a fast way to
 jump between temporary project folders.
 
-Inspired by and adapted from Tobias Lütke’s original Ruby tool:
+Inspired by and adapted from Tobias Lütke's original Ruby tool:
 <https://github.com/tobi/try>
+
+[![Crates.io](https://img.shields.io/crates/v/try-cli.svg)](https://crates.io/crates/try-cli)
 
 ## Quick Start
 
