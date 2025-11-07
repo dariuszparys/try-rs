@@ -245,7 +245,7 @@ pub(crate) fn render(err: &mut io::Stderr, ctx: &RenderCtx<'_>) -> Result<()> {
             let t = &ctx.tries[idx];
             // Compose and print prefix (arrow + icon), measure width accurately
             let prefix = if is_sel { "→ " } else { "  " };
-            write!(err, "{}", prefix)?;
+            write!(err, "{prefix}")?;
             write!(err, "📁 ")?;
             let prefix_w = display_width(&format!("{}{}", prefix, "📁 "));
 
@@ -258,7 +258,7 @@ pub(crate) fn render(err: &mut io::Stderr, ctx: &RenderCtx<'_>) -> Result<()> {
             // Right-side meta: mtime then score
             let time_text = format_relative_time(t.mtime);
             let score_text = format!("{:.1}", t.score);
-            let meta = format!("{}, {}", time_text, score_text);
+            let meta = format!("{time_text}, {score_text}");
 
             // Compute remaining columns; ensure we never overflow terminal width
             let name_w = display_width(&t.basename);
@@ -277,7 +277,7 @@ pub(crate) fn render(err: &mut io::Stderr, ctx: &RenderCtx<'_>) -> Result<()> {
                     dim(err, &truncated)?;
                 } else {
                     // Right align meta within the remaining width
-                    let meta_fmt = format!("{:>pad$}", meta, pad = rem);
+                    let meta_fmt = format!("{meta:>rem$}");
                     dim(err, &meta_fmt)?;
                 }
             }

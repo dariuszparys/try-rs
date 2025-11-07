@@ -300,7 +300,7 @@ impl TrySelector {
         writeln!(err)?;
         let prefix = crate::util::today_prefix();
         write!(err, "> ")?;
-        tui::dim(err, &format!("{}-", prefix))?;
+        tui::dim(err, &format!("{prefix}-"))?;
         err.flush()?;
 
         let mut line = String::new();
@@ -313,7 +313,7 @@ impl TrySelector {
         if line.is_empty() {
             return Ok(());
         }
-        let final_name = format!("{}-{}", prefix, line).replace(char::is_whitespace, "-");
+        let final_name = format!("{prefix}-{line}").replace(char::is_whitespace, "-");
         let full = self.base_path.join(final_name);
         self.selected = Some(Selection {
             kind: ActionType::Mkdir,
@@ -411,7 +411,7 @@ fn format_human_size(bytes: u64) -> String {
         idx += 1;
     }
     if idx == 0 {
-        format!("{}B", bytes)
+        format!("{bytes}B")
     } else {
         format!("{:.1}{}", val, UNITS[idx])
     }
