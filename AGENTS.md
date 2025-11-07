@@ -1,9 +1,11 @@
 # Repository Guidelines
 
 ## Project Structure & Modules
-- `src/`: Rust source for a single-binary CLI (`try`). Key modules: `cli.rs` (arg parsing), `tui.rs` (terminal UI), `selector.rs` (filtering), `score.rs` (ranking), `storage.rs` (filesystem ops), `util.rs` (helpers), `error.rs` (errors), `main.rs` (entry + tests).
+- `src/`: Rust source for a single-binary CLI (`try`). Key modules: `cli.rs` (arg parsing), `tui.rs` (terminal UI), `selector.rs` (filtering), `score.rs` (ranking), `model.rs` (data model shared across modules), `storage.rs` (filesystem ops), `util.rs` (helpers), `error.rs` (errors), `main.rs` (entry + tests).
 - `Cargo.toml` / `Cargo.lock`: crate metadata and locked deps.
-- `.github/workflows/ci.yml`: CI for check, test, fmt, clippy.
+- `.github/workflows/ci.yml`: CI for check, test, fmt, clippy. `.github/workflows/release.yml` builds multi-platform artifacts and publishes to crates.io when `v*.*.*` tags are pushed.
+- `install.sh`: user-facing installer that also wires shell integration (bash/zsh/fish) unless `--no-shell-integration` is passed.
+- `RELEASE_PROCESS.md`: step-by-step release guide (version bump, tagging, crates.io publish).
 - No separate `tests/` directory; unit tests live alongside code (see `#[cfg(test)]` in `src/main.rs`).
 
 ## Build, Run, and Test
@@ -36,8 +38,12 @@
   - Link issues (e.g., "Fixes #123").
   - Pass CI: check, test, fmt, clippy.
 
+## Automation & Releases
+- `ci.yml` runs on pushes/PRs to enforce `cargo check`, `cargo test --all --locked`, `cargo fmt --all -- --check`, and `cargo clippy --all-targets -- -D warnings`.
+- `release.yml` builds signed archives for Linux/macOS/Windows, uploads checksums, and publishes to crates.io using `CARGO_REGISTRY_TOKEN`.
+- Follow `RELEASE_PROCESS.md` for version bumps, tagging (`vX.Y.Z`), and monitoring the release workflow.
+
 ## Security & Configuration Tips
 - Scope writes to the configured tries directory (default `~/src/tries`).
 - Configure via env `TRY_PATH` or `try init /absolute/path`; document any behavior that touches the filesystem.
 - No secrets or network required by the binary; `try clone` only prints a shell pipeline—git runs in the caller’s shell.
-
