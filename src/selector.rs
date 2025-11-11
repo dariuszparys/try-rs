@@ -247,12 +247,14 @@ impl TrySelector {
                 }
                 let ctime = meta.created().ok();
                 let mtime = meta.modified().ok();
+                let size = crate::util::calculate_dir_size(&path);
                 out.push(TryDir {
                     basename,
                     path,
                     ctime,
                     mtime,
                     score: 0.0,
+                    size,
                 });
             }
         }
@@ -363,7 +365,7 @@ impl TrySelector {
             t.basename,
             t.path.display(),
             files,
-            format_human_size(bytes)
+            crate::util::format_human_size(bytes)
         )?;
         tui::styled(
             err,
@@ -398,21 +400,5 @@ impl TrySelector {
         } else {
             Ok(false)
         }
-    }
-}
-
-fn format_human_size(bytes: u64) -> String {
-    const UNITS: &[&str] = &["B", "K", "M", "G", "T"];
-    const BYTES_PER_KIB: f64 = 1_024.0;
-    let mut val = bytes as f64;
-    let mut idx = 0;
-    while val >= BYTES_PER_KIB && idx + 1 < UNITS.len() {
-        val /= BYTES_PER_KIB;
-        idx += 1;
-    }
-    if idx == 0 {
-        format!("{bytes}B")
-    } else {
-        format!("{:.1}{}", val, UNITS[idx])
     }
 }
