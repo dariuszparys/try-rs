@@ -494,23 +494,37 @@ mod tests {
             .output()
             .expect("Failed to run try init");
         let stdout = String::from_utf8(output.stdout).expect("Invalid UTF-8");
-        // POSIX shell wrapper should use cmd_status, not status
-        assert!(
-            stdout.contains("cmd_status=$?"),
-            "Init script should use cmd_status=$?, got: {stdout}"
-        );
-        assert!(
-            stdout.contains("$cmd_status"),
-            "Init script should reference $cmd_status, got: {stdout}"
-        );
-        // Should NOT contain the problematic standalone status= assignment
-        // Check for the pattern with word boundaries to avoid false matches
-        let has_standalone_status = stdout
-            .lines()
-            .any(|line| line.trim().starts_with("status=$?") || line.contains(" status=$?"));
-        assert!(
-            !has_standalone_status,
-            "Init script should not use status=$? (read-only in zsh), got: {stdout}"
-        );
+        
+        // Check for appropriate syntax based on shell type
+        if crate::util::is_fish_shell() {
+            // Fish shell syntax: set -l cmd_status $status
+            assert!(
+                stdout.contains("set -l cmd_status $status"),
+                "Init script should use 'set -l cmd_status $status' in fish shell, got: {stdout}"
+            );
+            assert!(
+                stdout.contains("$cmd_status"),
+                "Init script should reference $cmd_status, got: {stdout}"
+            );
+        } else {
+            // POSIX shell wrapper should use cmd_status, not status
+            assert!(
+                stdout.contains("cmd_status=$?"),
+                "Init script should use cmd_status=$?, got: {stdout}"
+            );
+            assert!(
+                stdout.contains("$cmd_status"),
+                "Init script should reference $cmd_status, got: {stdout}"
+            );
+            // Should NOT contain the problematic standalone status= assignment
+            // Check for the pattern with word boundaries to avoid false matches
+            let has_standalone_status = stdout
+                .lines()
+                .any(|line| line.trim().starts_with("status=$?") || line.contains(" status=$?"));
+            assert!(
+                !has_standalone_status,
+                "Init script should not use status=$? (read-only in zsh), got: {stdout}"
+            );
+        }
     }
 }

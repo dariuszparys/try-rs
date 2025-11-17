@@ -8,5 +8,5 @@ pub struct TryDir {
     pub ctime: Option<SystemTime>,
     pub mtime: Option<SystemTime>,
     pub score: f64,
-    pub size: u64,
+    pub size: Option<u64>,
 }

@@ -5,6 +5,7 @@ use crossterm::{
 };
 
 use std::{
+    collections::HashMap,
     env, fs,
     io::{self, Write},
     path::{Path, PathBuf},
@@ -47,6 +48,7 @@ pub(crate) struct TrySelector {
     pub(crate) base_path: PathBuf,
     pub(crate) selected: Option<Selection>,
     status_msg: Option<String>,
+    size_cache: HashMap<PathBuf, u64>,
     // no vim/undo mode in Ruby semantics
 }
 
@@ -74,6 +76,7 @@ impl TrySelector {
             base_path,
             selected: None,
             status_msg: None,
+            size_cache: HashMap::new(),
         })
     }
 
@@ -109,6 +112,28 @@ impl TrySelector {
                 tries = self.get_tries();
                 let total_items = tries.len() + EXTRA_LIST_ROWS;
                 self.cursor = self.cursor.min(total_items.saturating_sub(1));
+                
+                // Calculate sizes lazily for visible items only
+                let max_visible = usize::max(
+                    self.term_h.saturating_sub(8) as usize, // RESERVED_LINES from tui.rs
+                    3, // MIN_VISIBLE_ITEMS
+                );
+                let (scroll, end) = tui::compute_viewport(
+                    self.cursor,
+                    self.scroll,
+                    max_visible,
+                    total_items,
+                );
+                self.scroll = scroll;
+                
+                // Calculate sizes for visible items only to avoid blocking
+                let tries_len = tries.len();
+                let start_idx = scroll.min(tries_len);
+                let end_idx = end.min(tries_len);
+                for t in &mut tries[start_idx..end_idx] {
+                    self.ensure_size_calculated(t);
+                }
+                
                 let ctx = tui::RenderCtx {
                     term_w: self.term_w,
                     term_h: self.term_h,
@@ -247,14 +272,13 @@ impl TrySelector {
                 }
                 let ctime = meta.created().ok();
                 let mtime = meta.modified().ok();
-                let size = crate::util::calculate_dir_size(&path);
                 out.push(TryDir {
                     basename,
                     path,
                     ctime,
                     mtime,
                     score: 0.0,
-                    size,
+                    size: None, // Calculated lazily during render
                 });
             }
         }
@@ -275,6 +299,20 @@ impl TrySelector {
             filtered.sort_by(|a, b| b.score.total_cmp(&a.score));
             filtered
         }
+    }
+
+    /// Ensures the size is calculated for a TryDir, using cache if available.
+    fn ensure_size_calculated(&mut self, t: &mut TryDir) {
+        if t.size.is_some() {
+            return;
+        }
+        if let Some(&cached) = self.size_cache.get(&t.path) {
+            t.size = Some(cached);
+            return;
+        }
+        let size = crate::util::calculate_dir_size(&t.path);
+        self.size_cache.insert(t.path.clone(), size);
+        t.size = Some(size);
     }
 
     fn handle_select_existing(&mut self, t: &TryDir) {
