@@ -494,7 +494,7 @@ mod tests {
             .output()
             .expect("Failed to run try init");
         let stdout = String::from_utf8(output.stdout).expect("Invalid UTF-8");
-        
+
         // Check for appropriate syntax based on shell type
         if crate::util::is_fish_shell() {
             // Fish shell syntax: set -l cmd_status $status

@@ -112,20 +112,16 @@ impl TrySelector {
                 tries = self.get_tries();
                 let total_items = tries.len() + EXTRA_LIST_ROWS;
                 self.cursor = self.cursor.min(total_items.saturating_sub(1));
-                
+
                 // Calculate sizes lazily for visible items only
                 let max_visible = usize::max(
                     self.term_h.saturating_sub(8) as usize, // RESERVED_LINES from tui.rs
-                    3, // MIN_VISIBLE_ITEMS
+                    3,                                      // MIN_VISIBLE_ITEMS
                 );
-                let (scroll, end) = tui::compute_viewport(
-                    self.cursor,
-                    self.scroll,
-                    max_visible,
-                    total_items,
-                );
+                let (scroll, end) =
+                    tui::compute_viewport(self.cursor, self.scroll, max_visible, total_items);
                 self.scroll = scroll;
-                
+
                 // Calculate sizes for visible items only to avoid blocking
                 let tries_len = tries.len();
                 let start_idx = scroll.min(tries_len);
@@ -133,7 +129,7 @@ impl TrySelector {
                 for t in &mut tries[start_idx..end_idx] {
                     self.ensure_size_calculated(t);
                 }
-                
+
                 let ctx = tui::RenderCtx {
                     term_w: self.term_w,
                     term_h: self.term_h,

@@ -256,7 +256,8 @@ pub(crate) fn render(err: &mut io::Stderr, ctx: &RenderCtx<'_>) -> Result<()> {
             write_highlighted(err, &t.basename, ctx.input_buf, is_sel)?;
 
             // Right-side meta: size and mtime
-            let size_text = t.size
+            let size_text = t
+                .size
                 .map(crate::util::format_human_size)
                 .unwrap_or_else(|| "...".to_string());
             let time_text = format_relative_time(t.mtime);
