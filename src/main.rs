@@ -104,7 +104,8 @@ fn main() -> Result<()> {
                     r#"function try
   set -l script_path "{}"
   set -l cmd (/usr/bin/env "{}" cd{} $argv 2>/dev/tty | string collect)
-  test $status -eq 0 && eval $cmd || echo $cmd
+  set -l cmd_status $status
+  test $cmd_status -eq 0 && eval $cmd || echo $cmd
 end"#,
                     script_path.display(),
                     script_path.display(),
@@ -125,8 +126,16 @@ end"#,
           return;;
       esac;;
   esac
-  cmd=$(/usr/bin/env "{}" cd{} "$@" 2>/dev/tty);
-  [ $? -eq 0 ] && eval "$cmd" || echo "$cmd";
+  tmp=$(mktemp 2>/dev/null || echo "/tmp/try-cmd-$$")
+  /usr/bin/env "{}" cd{} "$@" > "$tmp" 2>/dev/tty
+  cmd_status=$?
+  cmd=$(cat "$tmp" 2>/dev/null)
+  rm -f "$tmp" 2>/dev/null
+  if [ $cmd_status -eq 0 ] && [ -n "$cmd" ]; then
+    eval "$cmd"
+  else
+    [ -n "$cmd" ] && echo "$cmd"
+  fi
 }}"#,
                     script_path.display(),
                     script_path.display(),
@@ -473,5 +482,35 @@ mod tests {
         assert_eq!(shellexpand_home("/tmp/x").to_string_lossy(), "/tmp/x");
         // join_shell trivial
         assert_eq!(crate::util::join_shell(&["a".into(), "b".into()]), "a && b");
+    }
+
+    #[test]
+    fn test_init_script_uses_cmd_status_not_status() {
+        // Regression test: ensure init script uses cmd_status instead of status
+        // (status is read-only in zsh)
+        use std::process::Command;
+        let output = Command::new("cargo")
+            .args(["run", "--quiet", "--", "init"])
+            .output()
+            .expect("Failed to run try init");
+        let stdout = String::from_utf8(output.stdout).expect("Invalid UTF-8");
+        // POSIX shell wrapper should use cmd_status, not status
+        assert!(
+            stdout.contains("cmd_status=$?"),
+            "Init script should use cmd_status=$?, got: {stdout}"
+        );
+        assert!(
+            stdout.contains("$cmd_status"),
+            "Init script should reference $cmd_status, got: {stdout}"
+        );
+        // Should NOT contain the problematic standalone status= assignment
+        // Check for the pattern with word boundaries to avoid false matches
+        let has_standalone_status = stdout
+            .lines()
+            .any(|line| line.trim().starts_with("status=$?") || line.contains(" status=$?"));
+        assert!(
+            !has_standalone_status,
+            "Init script should not use status=$? (read-only in zsh), got: {stdout}"
+        );
     }
 }
