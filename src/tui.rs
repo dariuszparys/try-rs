@@ -255,10 +255,13 @@ pub(crate) fn render(err: &mut io::Stderr, ctx: &RenderCtx<'_>) -> Result<()> {
             }
             write_highlighted(err, &t.basename, ctx.input_buf, is_sel)?;
 
-            // Right-side meta: mtime then score
+            // Right-side meta: size and mtime
+            let size_text = t
+                .size
+                .map(crate::util::format_human_size)
+                .unwrap_or_else(|| "...".to_string());
             let time_text = format_relative_time(t.mtime);
-            let score_text = format!("{:.1}", t.score);
-            let meta = format!("{time_text}, {score_text}");
+            let meta = format!("{size_text}, {time_text}");
 
             // Compute remaining columns; ensure we never overflow terminal width
             let name_w = display_width(&t.basename);

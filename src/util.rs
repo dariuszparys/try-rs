@@ -231,3 +231,40 @@ pub(crate) fn dir_assign_for_shell(dir: &Path) -> String {
         format!("dir={escaped}")
     }
 }
+
+/// Format a byte size as a human-readable string (e.g., "1.5K", "23.4M").
+pub(crate) fn format_human_size(bytes: u64) -> String {
+    const UNITS: &[&str] = &["B", "K", "M", "G", "T"];
+    const BYTES_PER_KIB: f64 = 1_024.0;
+    let mut val = bytes as f64;
+    let mut idx = 0;
+    while val >= BYTES_PER_KIB && idx + 1 < UNITS.len() {
+        val /= BYTES_PER_KIB;
+        idx += 1;
+    }
+    if idx == 0 {
+        format!("{bytes}B")
+    } else {
+        format!("{:.1}{}", val, UNITS[idx])
+    }
+}
+
+/// Calculate the total size of a directory recursively.
+pub(crate) fn calculate_dir_size(path: &Path) -> u64 {
+    let mut total = 0u64;
+    fn walk(p: &Path, total: &mut u64) {
+        if let Ok(md) = std::fs::symlink_metadata(p) {
+            if md.is_file() {
+                *total += md.len();
+            } else if md.is_dir()
+                && let Ok(rd) = std::fs::read_dir(p)
+            {
+                for e in rd.flatten() {
+                    walk(&e.path(), total);
+                }
+            }
+        }
+    }
+    walk(path, &mut total);
+    total
+}
