@@ -185,10 +185,10 @@ Notes:
 
 ## Troubleshooting
 
-- `command not found: try`: ensure `~/.cargo/bin` is on your `PATH` or reference
-  the binary directly, e.g. `eval "$(~/.cargo/bin/try init)"`.
+- `command not found: try`: ensure `~/.local/bin` (or `~/.cargo/bin` if installed via cargo) is on your `PATH` or reference
+  the binary directly, e.g. `eval "$(~/.local/bin/try init)"`.
 - Selector opens but no `cd` happens: confirm your rc file sources the `init`
-  function and that you restarted/reloaded the shell.
+  function and that you restarted/reloaded the shell. If you have multiple shells configured, ensure the integration is in the correct shell's RC file (e.g., `~/.zshrc` for zsh, `~/.bashrc` or `~/.bash_profile` for bash).
 - Wrong tries location: check `echo $TRY_PATH` or the path passed to `init`.
 
 ## Development

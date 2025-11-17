@@ -134,6 +134,27 @@ download() {
 
 # Detect shell
 detect_shell() {
+    # When run via curl | sh, we want to detect the user's login shell, not the
+    # script interpreter. On macOS, /bin/sh is bash, so $BASH_VERSION may be set
+    # even when the user's shell is zsh. Prioritize $SHELL environment variable.
+    if [ -n "$SHELL" ]; then
+        case "$SHELL" in
+            */bash)
+                echo "bash"
+                return
+                ;;
+            */zsh)
+                echo "zsh"
+                return
+                ;;
+            */fish)
+                echo "fish"
+                return
+                ;;
+        esac
+    fi
+    
+    # Fallback to version variables if $SHELL didn't match or wasn't set
     if [ -n "$BASH_VERSION" ]; then
         echo "bash"
     elif [ -n "$ZSH_VERSION" ]; then
@@ -141,21 +162,7 @@ detect_shell() {
     elif [ -n "$FISH_VERSION" ]; then
         echo "fish"
     else
-        # Fallback to checking SHELL environment variable
-        case "$SHELL" in
-            */bash)
-                echo "bash"
-                ;;
-            */zsh)
-                echo "zsh"
-                ;;
-            */fish)
-                echo "fish"
-                ;;
-            *)
-                echo "unknown"
-                ;;
-        esac
+        echo "unknown"
     fi
 }
 
@@ -195,10 +202,17 @@ add_shell_integration() {
         return
     fi
 
-    # Check if already configured
+    # Check if already configured in the correct RC file
     if [ -f "$RC_FILE" ] && grep -q "try init" "$RC_FILE"; then
-        info "Shell integration already configured in $RC_FILE"
+        info "Shell integration already configured in $RC_FILE (detected shell: $SHELL_TYPE)"
         return
+    fi
+
+    # Warn if integration exists in other shell RC files (but don't fail)
+    if [ "$SHELL_TYPE" != "bash" ] && [ -f "$HOME/.bash_profile" ] && grep -q "try init" "$HOME/.bash_profile"; then
+        warn "Found shell integration in ~/.bash_profile, but detected shell is $SHELL_TYPE. Adding to $RC_FILE instead."
+    elif [ "$SHELL_TYPE" != "bash" ] && [ -f "$HOME/.bashrc" ] && grep -q "try init" "$HOME/.bashrc"; then
+        warn "Found shell integration in ~/.bashrc, but detected shell is $SHELL_TYPE. Adding to $RC_FILE instead."
     fi
 
     # Create config directory if needed (for fish)
@@ -207,7 +221,7 @@ add_shell_integration() {
     fi
 
     # Add integration
-    info "Adding shell integration to $RC_FILE"
+    info "Adding shell integration to $RC_FILE (detected shell: $SHELL_TYPE)"
 
     if [ "$SHELL_TYPE" = "fish" ]; then
         echo "" >> "$RC_FILE"
